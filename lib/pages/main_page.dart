@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:superheroes/blocs/main_bloc.dart';
+import 'package:superheroes/pages/superhero_page.dart';
 import 'package:superheroes/resources/superheroes_colors.dart';
 import 'package:superheroes/resources/superheroes_images.dart';
 import 'package:superheroes/widgets/action_button.dart';
+import 'package:superheroes/widgets/info_with_button.dart';
+import 'package:superheroes/widgets/superhero_card.dart';
 
 class MainPage extends StatefulWidget {
   MainPage({Key? key}) : super(key: key);
@@ -71,56 +74,40 @@ class MainPageStateWidget extends StatelessWidget {
             return LoadingIndicator();
           case MainPageState.minSymbols:
             return CheckMinSymbols();
+          case MainPageState.favorites:
+            return Favorites();
+          case MainPageState.searchResults:
+            return SearchResults();
           case MainPageState.noFavorites:
-            return Center(
-              child: Column(
-                children: [
-                  SizedBox(height: 165),
-                  Stack(
-                    children: [
-                      Container(
-                        width: 108.0,
-                        height: 108.0,
-                        decoration:
-                            BoxDecoration(color: SuperheroesColors.blue, shape: BoxShape.circle),
-                      ),
-                      Image.asset(
-                        SuperheroesImages.ironMan,
-                        height: 150,
-                        width: 150,
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 40),
-                  Text(
-                    "No favorites yes",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    "Search and add".toUpperCase(),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  SizedBox(height: 30),
-                  ActionButton(
-                    text: "Search".toUpperCase(),
-                    onTap: () => {},
-                  ),
-                ],
-              ),
+            return InfoWithButton(
+              title: "No favorites yet",
+              subtitle: "Search and add",
+              buttonText: "Search",
+              assetImage: SuperheroesImages.ironman,
+              imageHeight: 119,
+              imageWidth: 108,
+              imageTopPadding: 9,
             );
           case MainPageState.nothingFound:
+            return InfoWithButton(
+              title: "Nothing found",
+              subtitle: "Search for something else",
+              buttonText: "Search",
+              assetImage: SuperheroesImages.hulk,
+              imageHeight: 112,
+              imageWidth: 84,
+              imageTopPadding: 16,
+            );
           case MainPageState.loadingError:
-          case MainPageState.searchResults:
-          case MainPageState.favorites:
+            return InfoWithButton(
+              title: "Error happened",
+              subtitle: "Please, try again",
+              buttonText: "Retry",
+              assetImage: SuperheroesImages.superman,
+              imageHeight: 106,
+              imageWidth: 126,
+              imageTopPadding: 22,
+            );
           default:
             return Center(
               child: Text(
@@ -130,6 +117,112 @@ class MainPageStateWidget extends StatelessWidget {
             );
         }
       },
+    );
+  }
+}
+
+class SearchResults extends StatelessWidget {
+  const SearchResults({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 90),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            "Search results",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SuperheroCard(
+            name: 'Batman'.toUpperCase(),
+            realName: 'Bruce Wayne',
+            imageUrl: 'https://www.superherodb.com/pictures2/portraits/10/100/639.jpg',
+            onTap: () {},
+          ),
+        ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SuperheroCard(
+            name: 'Venom'.toUpperCase(),
+            realName: 'Eddie Brock',
+            imageUrl: 'https://www.superherodb.com/pictures2/portraits/10/100/22.jpg',
+            onTap: () {},
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class Favorites extends StatelessWidget {
+  const Favorites({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 90),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            "Your favorites",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SuperheroCard(
+            name: 'Batman'.toUpperCase(),
+            realName: 'Bruce Wayne',
+            imageUrl: 'https://www.superherodb.com/pictures2/portraits/10/100/639.jpg',
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => SuperheroPage(name: 'Batman'),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SuperheroCard(
+            name: 'Ironman'.toUpperCase(),
+            realName: 'Tony Stark',
+            imageUrl: 'https://www.superherodb.com/pictures2/portraits/10/100/85.jpg',
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => SuperheroPage(name: 'Ironman'),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -168,9 +261,9 @@ class LoadingIndicator extends StatelessWidget {
     return Align(
       alignment: Alignment.topCenter,
       child: Padding(
-        padding: EdgeInsets.only(top: 110),
+        padding: const EdgeInsets.only(top: 110),
         child: CircularProgressIndicator(
-          color: SuperheroesColors.blue,
+          // color: SuperheroesColors.blue,
           strokeWidth: 4,
         ),
       ),
