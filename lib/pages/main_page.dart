@@ -147,7 +147,7 @@ class SearchResults extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: SuperheroCard(
-            name: 'Batman'.toUpperCase(),
+            name: 'Batman',
             realName: 'Bruce Wayne',
             imageUrl: 'https://www.superherodb.com/pictures2/portraits/10/100/639.jpg',
             onTap: () {},
@@ -157,7 +157,7 @@ class SearchResults extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: SuperheroCard(
-            name: 'Venom'.toUpperCase(),
+            name: 'Venom',
             realName: 'Eddie Brock',
             imageUrl: 'https://www.superherodb.com/pictures2/portraits/10/100/22.jpg',
             onTap: () {},
@@ -194,7 +194,7 @@ class Favorites extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: SuperheroCard(
-            name: 'Batman'.toUpperCase(),
+            name: 'Batman',
             realName: 'Bruce Wayne',
             imageUrl: 'https://www.superherodb.com/pictures2/portraits/10/100/639.jpg',
             onTap: () {
@@ -210,7 +210,7 @@ class Favorites extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: SuperheroCard(
-            name: 'Ironman'.toUpperCase(),
+            name: 'Ironman',
             realName: 'Tony Stark',
             imageUrl: 'https://www.superherodb.com/pictures2/portraits/10/100/85.jpg',
             onTap: () {
