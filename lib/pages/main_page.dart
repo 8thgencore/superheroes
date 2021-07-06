@@ -178,13 +178,13 @@ class Favorites extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 90),
+        const SizedBox(height: 90),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             "Your favorites",
             style: TextStyle(
-              color: Colors.white,
+              color: SuperheroesColors.white,
               fontSize: 24,
               fontWeight: FontWeight.w800,
             ),

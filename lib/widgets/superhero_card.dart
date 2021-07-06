@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:superheroes/resources/superheroes_colors.dart';
 
+import '../resources/superheroes_colors.dart';
+
 class SuperheroCard extends StatelessWidget {
   final String name;
   final String realName;
@@ -39,7 +41,7 @@ class SuperheroCard extends StatelessWidget {
                   Text(
                     name.toUpperCase(),
                     style: TextStyle(
-                      color: Colors.white,
+                      color: SuperheroesColors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
@@ -47,14 +49,14 @@ class SuperheroCard extends StatelessWidget {
                   Text(
                     realName,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: SuperheroesColors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
