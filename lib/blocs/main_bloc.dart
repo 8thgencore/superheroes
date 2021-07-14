@@ -18,6 +18,10 @@ class MainBloc {
     stateSubject.add(nextState);
   }
 
+  void updateText(final String? text) {
+    print("GOT NEW TEXT $text");
+  }
+
   void dispose() {
     stateSubject.close();
   }

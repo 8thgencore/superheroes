@@ -41,7 +41,7 @@ class _MainPageState extends State<MainPage> {
 class MainPageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final MainBloc bloc = Provider.of<MainBloc>(context);
+    final MainBloc bloc = Provider.of<MainBloc>(context, listen: false);
 
     return Stack(
       children: [
@@ -49,11 +49,64 @@ class MainPageContent extends StatelessWidget {
         Align(
           alignment: Alignment.bottomCenter,
           child: ActionButton(
-            text: "Next state".toUpperCase(),
+            text: "Next state",
             onTap: () => bloc.nextState(),
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.only(top: 12, left: 16, right: 16),
+          child: SearchWidget(),
+        ),
       ],
+    );
+  }
+}
+
+class SearchWidget extends StatefulWidget {
+  @override
+  _SearchWidgetState createState() => _SearchWidgetState();
+}
+
+class _SearchWidgetState extends State<SearchWidget> {
+
+  final TextEditingController controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller.addListener(() => print("Controller: ${controller.text}"));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final MainBloc bloc = Provider.of<MainBloc>(context, listen: false);
+
+    return TextField(
+      controller: controller,
+      onChanged: (text) => bloc.updateText(text),
+      style: TextStyle(
+        fontWeight: FontWeight.w400,
+        fontSize: 20,
+        color: SuperheroesColors.white,
+      ),
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: SuperheroesColors.indigo75,
+        isDense: true,
+        prefixIcon: Icon(Icons.search, color: Colors.white54, size: 24),
+        suffix: GestureDetector(
+          onTap: () => controller.clear(),
+          child: Icon(Icons.clear, color: Colors.white),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.white24),
+        ),
+      ),
     );
   }
 }
@@ -61,7 +114,7 @@ class MainPageContent extends StatelessWidget {
 class MainPageStateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final MainBloc bloc = Provider.of<MainBloc>(context);
+    final MainBloc bloc = Provider.of<MainBloc>(context, listen: false);
     return StreamBuilder<MainPageState>(
       stream: bloc.observeMainPageState(),
       builder: (context, snapshot) {
@@ -73,41 +126,17 @@ class MainPageStateWidget extends StatelessWidget {
           case MainPageState.loading:
             return LoadingIndicator();
           case MainPageState.minSymbols:
-            return CheckMinSymbols();
+            return MinSymbolsWidget();
           case MainPageState.favorites:
-            return Favorites();
+            return FavoritesWidget();
           case MainPageState.searchResults:
-            return SearchResults();
+            return SearchResultsWidget();
           case MainPageState.noFavorites:
-            return InfoWithButton(
-              title: "No favorites yet",
-              subtitle: "Search and add",
-              buttonText: "Search",
-              assetImage: SuperheroesImages.ironman,
-              imageHeight: 119,
-              imageWidth: 108,
-              imageTopPadding: 9,
-            );
+            return NoFavoritesWidget();
           case MainPageState.nothingFound:
-            return InfoWithButton(
-              title: "Nothing found",
-              subtitle: "Search for something else",
-              buttonText: "Search",
-              assetImage: SuperheroesImages.hulk,
-              imageHeight: 112,
-              imageWidth: 84,
-              imageTopPadding: 16,
-            );
+            return NothingFoundWidget();
           case MainPageState.loadingError:
-            return InfoWithButton(
-              title: "Error happened",
-              subtitle: "Please, try again",
-              buttonText: "Retry",
-              assetImage: SuperheroesImages.superman,
-              imageHeight: 106,
-              imageWidth: 126,
-              imageTopPadding: 22,
-            );
+            return LoadingErrorWidget();
           default:
             return Center(
               child: Text(
@@ -121,8 +150,65 @@ class MainPageStateWidget extends StatelessWidget {
   }
 }
 
-class SearchResults extends StatelessWidget {
-  const SearchResults({
+class LoadingErrorWidget extends StatelessWidget {
+  const LoadingErrorWidget({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return InfoWithButton(
+      title: "Error happened",
+      subtitle: "Please, try again",
+      buttonText: "Retry",
+      assetImage: SuperheroesImages.superman,
+      imageHeight: 106,
+      imageWidth: 126,
+      imageTopPadding: 22,
+    );
+  }
+}
+
+class NoFavoritesWidget extends StatelessWidget {
+  const NoFavoritesWidget({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return InfoWithButton(
+      title: "No favorites yet",
+      subtitle: "Search and add",
+      buttonText: "Search",
+      assetImage: SuperheroesImages.ironman,
+      imageHeight: 119,
+      imageWidth: 108,
+      imageTopPadding: 9,
+    );
+  }
+}
+
+class NothingFoundWidget extends StatelessWidget {
+  const NothingFoundWidget({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return InfoWithButton(
+      title: "Nothing found",
+      subtitle: "Search for something else",
+      buttonText: "Search",
+      assetImage: SuperheroesImages.hulk,
+      imageHeight: 112,
+      imageWidth: 84,
+      imageTopPadding: 16,
+    );
+  }
+}
+
+class SearchResultsWidget extends StatelessWidget {
+  const SearchResultsWidget({
     Key? key,
   }) : super(key: key);
 
@@ -168,8 +254,8 @@ class SearchResults extends StatelessWidget {
   }
 }
 
-class Favorites extends StatelessWidget {
-  const Favorites({
+class FavoritesWidget extends StatelessWidget {
+  const FavoritesWidget({
     Key? key,
   }) : super(key: key);
 
@@ -227,8 +313,8 @@ class Favorites extends StatelessWidget {
   }
 }
 
-class CheckMinSymbols extends StatelessWidget {
-  const CheckMinSymbols({
+class MinSymbolsWidget extends StatelessWidget {
+  const MinSymbolsWidget({
     Key? key,
   }) : super(key: key);
 
