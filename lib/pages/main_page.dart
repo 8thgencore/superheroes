@@ -5,6 +5,7 @@ import 'package:superheroes/blocs/main_bloc.dart';
 import 'package:superheroes/pages/superhero_page.dart';
 import 'package:superheroes/resources/superheroes_colors.dart';
 import 'package:superheroes/resources/superheroes_images.dart';
+import 'package:superheroes/widgets/action_button.dart';
 import 'package:superheroes/widgets/info_with_button.dart';
 import 'package:superheroes/widgets/superhero_card.dart';
 
@@ -72,14 +73,18 @@ class _SearchWidgetState extends State<SearchWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final MainBloc bloc = Provider.of<MainBloc>(context, listen: false);
-
     return TextField(
       controller: controller,
+      cursorColor: Colors.white,
+      // цвет курсора
+      textInputAction: TextInputAction.search,
+      // изменить кнопку на клавиатуре
+      textCapitalization: TextCapitalization.words,
+      // первый введенный символ с большой буквы
       style: TextStyle(
         fontWeight: FontWeight.w400,
         fontSize: 20,
-        color: SuperheroesColors.white,
+        color: Colors.white,
       ),
       decoration: InputDecoration(
         filled: true,
@@ -92,10 +97,16 @@ class _SearchWidgetState extends State<SearchWidget> {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Colors.white, width: 2),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.white24),
+          borderSide: const BorderSide(color: Colors.white24),
+        ),
+        // есть TextField выделен
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Colors.white, width: 2),
         ),
       ),
     );
@@ -119,9 +130,23 @@ class MainPageStateWidget extends StatelessWidget {
           case MainPageState.minSymbols:
             return MinSymbolsWidget();
           case MainPageState.favorites:
-            return SuperheroesList(
-              title: "Your favorites",
-              stream: bloc.observeFavoriteSuperheroes(),
+            return Stack(
+              children: [
+                SuperheroesList(
+                  title: "Your favorites",
+                  stream: bloc.observeFavoriteSuperheroes(),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: ActionButton(
+                      text: "Remove".toUpperCase(),
+                      onTap: () => bloc.removeFavorite(),
+                    ),
+                  ),
+                ),
+              ],
             );
           case MainPageState.searchResults:
             return SuperheroesList(
@@ -243,9 +268,7 @@ class SuperheroesList extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SuperheroCard(
-                name: item.name,
-                realName: item.realName,
-                imageUrl: item.imageUrl,
+                superheroInfo: item,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -259,6 +282,7 @@ class SuperheroesList extends StatelessWidget {
           separatorBuilder: (BuildContext context, int index) {
             return const SizedBox(height: 8);
           },
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         );
       },
     );
@@ -301,7 +325,7 @@ class LoadingIndicator extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(top: 110),
         child: CircularProgressIndicator(
-          // color: SuperheroesColors.blue,
+          color: SuperheroesColors.blue,
           strokeWidth: 4,
         ),
       ),

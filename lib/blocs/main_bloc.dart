@@ -7,31 +7,48 @@ class MainBloc {
 
   final BehaviorSubject<MainPageState> stateSubject = BehaviorSubject();
   final favoriteSuperheroesSubject =
-      BehaviorSubject<List<SuperheroInfo>>.seeded(SuperheroInfo.mocked);
+  BehaviorSubject<List<SuperheroInfo>>.seeded(SuperheroInfo.mocked);
   final searchedSuperheroesSubject = BehaviorSubject<List<SuperheroInfo>>();
   final currentTextSubject = BehaviorSubject<String>.seeded("");
 
   StreamSubscription? textSubscription;
   StreamSubscription? searchSubscription;
 
+  Stream<List<SuperheroInfo>> observeFavoriteSuperheroes() => favoriteSuperheroesSubject;
+
+  Stream<List<SuperheroInfo>> observeSearchedSuperheroes() => searchedSuperheroesSubject;
+
+  Future<List<SuperheroInfo>> search(final String text) async {
+    await Future.delayed(Duration(seconds: 1));
+
+    List<SuperheroInfo> results = [];
+    for (var item in SuperheroInfo.mocked) {
+      if (item.name.toLowerCase().contains(text.toLowerCase())) {
+        results.add(item);
+      }
+    }
+
+    return results;
+  }
+
+  Stream<MainPageState> observeMainPageState() => stateSubject;
+
   MainBloc() {
     stateSubject.add(MainPageState.noFavorites);
 
     textSubscription = Rx.combineLatest2<String, List<SuperheroInfo>, MainPageStateInfo>(
-            currentTextSubject.distinct().debounceTime(Duration(milliseconds: 500)),
-            favoriteSuperheroesSubject,
+        currentTextSubject.distinct().debounceTime(Duration(milliseconds: 500)),
+        favoriteSuperheroesSubject,
             (searchedText, favorites) => MainPageStateInfo(searchedText, favorites.isNotEmpty))
         .listen((value) {
-      print("CHANGED $value");
       searchSubscription?.cancel();
-
       if (value.searchText.isEmpty) {
         if (value.haveFavorites) {
           stateSubject.add(MainPageState.favorites);
         } else {
           stateSubject.add(MainPageState.noFavorites);
         }
-      } else if (value.searchText.length < 3) {
+      } else if (value.searchText.length < minSymbols) {
         stateSubject.add(MainPageState.minSymbols);
       } else {
         searchForSuperheroes(value.searchText);
@@ -53,17 +70,6 @@ class MainBloc {
     });
   }
 
-  Stream<List<SuperheroInfo>> observeFavoriteSuperheroes() => favoriteSuperheroesSubject;
-
-  Stream<List<SuperheroInfo>> observeSearchedSuperheroes() => searchedSuperheroesSubject;
-
-  Future<List<SuperheroInfo>> search(final String text) async {
-    await Future.delayed(Duration(seconds: 1));
-    return SuperheroInfo.mocked;
-  }
-
-  Stream<MainPageState> observeMainPageState() => stateSubject;
-
   void nextState() {
     final currentState = stateSubject.value;
     final nextState = MainPageState
@@ -75,6 +81,10 @@ class MainBloc {
     currentTextSubject.add(text ?? "");
   }
 
+  void removeFavorite() {
+
+  }
+
   void dispose() {
     stateSubject.close();
     favoriteSuperheroesSubject.close();
@@ -83,6 +93,8 @@ class MainBloc {
 
     textSubscription?.cancel();
   }
+
+
 }
 
 enum MainPageState {
@@ -114,11 +126,11 @@ class SuperheroInfo {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SuperheroInfo &&
-          runtimeType == other.runtimeType &&
-          name == other.name &&
-          realName == other.realName &&
-          imageUrl == other.imageUrl;
+          other is SuperheroInfo &&
+              runtimeType == other.runtimeType &&
+              name == other.name &&
+              realName == other.realName &&
+              imageUrl == other.imageUrl;
 
   @override
   int get hashCode => name.hashCode ^ realName.hashCode ^ imageUrl.hashCode;
@@ -156,10 +168,10 @@ class MainPageStateInfo {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MainPageStateInfo &&
-          runtimeType == other.runtimeType &&
-          searchText == other.searchText &&
-          haveFavorites == other.haveFavorites;
+          other is MainPageStateInfo &&
+              runtimeType == other.runtimeType &&
+              searchText == other.searchText &&
+              haveFavorites == other.haveFavorites;
 
   @override
   int get hashCode => searchText.hashCode ^ haveFavorites.hashCode;
