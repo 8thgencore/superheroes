@@ -62,6 +62,8 @@ class SearchWidget extends StatefulWidget {
 class _SearchWidgetState extends State<SearchWidget> {
   final TextEditingController controller = TextEditingController();
 
+  // можно   final controller = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -73,43 +75,48 @@ class _SearchWidgetState extends State<SearchWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      cursorColor: Colors.white,
-      // цвет курсора
-      textInputAction: TextInputAction.search,
-      // изменить кнопку на клавиатуре
-      textCapitalization: TextCapitalization.words,
-      // первый введенный символ с большой буквы
-      style: TextStyle(
-        fontWeight: FontWeight.w400,
-        fontSize: 20,
-        color: Colors.white,
-      ),
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: SuperheroesColors.indigo75,
-        isDense: true,
-        prefixIcon: Icon(Icons.search, color: Colors.white54, size: 24),
-        suffix: GestureDetector(
-          onTap: () => controller.clear(),
-          child: Icon(Icons.clear, color: Colors.white),
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.white, width: 2),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.white24),
-        ),
-        // есть TextField выделен
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.white, width: 2),
-        ),
-      ),
-    );
+    final MainBloc bloc = Provider.of<MainBloc>(context, listen: false);
+    return StreamBuilder<Object>(
+        stream: bloc.currentTextSubject,
+        builder: (context, snapshot) {
+          return TextField(
+            controller: controller,
+            cursorColor: Colors.white,
+            textInputAction: TextInputAction.search,
+            textCapitalization: TextCapitalization.words,
+            style: TextStyle(fontWeight: FontWeight.w400, fontSize: 20, color: Colors.white),
+            decoration: InputDecoration(
+              hintText: "Search",
+              hintStyle: TextStyle(
+                color: Colors.white54,
+                fontSize: 20,
+                fontWeight: FontWeight.w400,
+              ),
+              isDense: true,
+              filled: true,
+              fillColor: SuperheroesColors.indigo75,
+              prefixIcon: Icon(Icons.search, color: Colors.white54, size: 24),
+              suffix: GestureDetector(
+                onTap: () => controller.clear(),
+                child: Icon(Icons.clear, color: Colors.white),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: snapshot.hasData && snapshot.data != "" ? Colors.white : Colors.white24,
+                  width: snapshot.hasData && snapshot.data != "" ? 2 : 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Colors.white, width: 2),
+              ),
+            ),
+          );
+        });
   }
 }
 
@@ -138,12 +145,9 @@ class MainPageStateWidget extends StatelessWidget {
                 ),
                 Align(
                   alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: ActionButton(
-                      text: "Remove".toUpperCase(),
-                      onTap: () => bloc.removeFavorite(),
-                    ),
+                  child: ActionButton(
+                    text: "Remove".toUpperCase(),
+                    onTap: () => bloc.removeFavorite(),
                   ),
                 ),
               ],
@@ -154,7 +158,18 @@ class MainPageStateWidget extends StatelessWidget {
               stream: bloc.observeSearchedSuperheroes(),
             );
           case MainPageState.noFavorites:
-            return NoFavoritesWidget();
+            return Stack(
+              children: [
+                NoFavoritesWidget(),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: ActionButton(
+                    text: "Remove".toUpperCase(),
+                    onTap: () => bloc.removeFavorite(),
+                  ),
+                ),
+              ],
+            );
           case MainPageState.nothingFound:
             return NothingFoundWidget();
           case MainPageState.loadingError:
@@ -249,6 +264,7 @@ class SuperheroesList extends StatelessWidget {
         }
         final List<SuperheroInfo> superheroes = snapshot.data!;
         return ListView.separated(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           itemCount: superheroes.length + 1,
           itemBuilder: (BuildContext context, int index) {
             if (index == 0) {
@@ -282,7 +298,6 @@ class SuperheroesList extends StatelessWidget {
           separatorBuilder: (BuildContext context, int index) {
             return const SizedBox(height: 8);
           },
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         );
       },
     );
@@ -325,6 +340,7 @@ class LoadingIndicator extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(top: 110),
         child: CircularProgressIndicator(
+          // valueColor: AlwaysStoppedAnimation<Color>(SuperheroesColors.blue),
           color: SuperheroesColors.blue,
           strokeWidth: 4,
         ),

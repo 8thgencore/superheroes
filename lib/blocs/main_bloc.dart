@@ -7,7 +7,7 @@ class MainBloc {
 
   final BehaviorSubject<MainPageState> stateSubject = BehaviorSubject();
   final favoriteSuperheroesSubject =
-  BehaviorSubject<List<SuperheroInfo>>.seeded(SuperheroInfo.mocked);
+      BehaviorSubject<List<SuperheroInfo>>.seeded(SuperheroInfo.mocked);
   final searchedSuperheroesSubject = BehaviorSubject<List<SuperheroInfo>>();
   final currentTextSubject = BehaviorSubject<String>.seeded("");
 
@@ -19,16 +19,10 @@ class MainBloc {
   Stream<List<SuperheroInfo>> observeSearchedSuperheroes() => searchedSuperheroesSubject;
 
   Future<List<SuperheroInfo>> search(final String text) async {
-    await Future.delayed(Duration(seconds: 1));
-
-    List<SuperheroInfo> results = [];
-    for (var item in SuperheroInfo.mocked) {
-      if (item.name.toLowerCase().contains(text.toLowerCase())) {
-        results.add(item);
-      }
-    }
-
-    return results;
+    await Future.delayed(Duration(milliseconds: 500));
+    return SuperheroInfo.mocked
+        .where((i) => i.name.toLowerCase().contains(text.toLowerCase()))
+        .toList();
   }
 
   Stream<MainPageState> observeMainPageState() => stateSubject;
@@ -37,10 +31,10 @@ class MainBloc {
     stateSubject.add(MainPageState.noFavorites);
 
     textSubscription = Rx.combineLatest2<String, List<SuperheroInfo>, MainPageStateInfo>(
-        currentTextSubject.distinct().debounceTime(Duration(milliseconds: 500)),
-        favoriteSuperheroesSubject,
-            (searchedText, favorites) => MainPageStateInfo(searchedText, favorites.isNotEmpty))
-        .listen((value) {
+      currentTextSubject.distinct().debounceTime(Duration(milliseconds: 500)),
+      favoriteSuperheroesSubject,
+      (searchedText, favorites) => MainPageStateInfo(searchedText, favorites.isNotEmpty),
+    ).listen((value) {
       searchSubscription?.cancel();
       if (value.searchText.isEmpty) {
         if (value.haveFavorites) {
@@ -82,7 +76,15 @@ class MainBloc {
   }
 
   void removeFavorite() {
-
+    var v =  List<SuperheroInfo>.from(favoriteSuperheroesSubject.value);
+    if (v.isEmpty) {
+      v.addAll(SuperheroInfo.mocked);
+      favoriteSuperheroesSubject.add(v);
+      return;
+    }
+    v.removeLast();
+    favoriteSuperheroesSubject.add(v);
+    return;
   }
 
   void dispose() {
@@ -93,8 +95,6 @@ class MainBloc {
 
     textSubscription?.cancel();
   }
-
-
 }
 
 enum MainPageState {
@@ -126,11 +126,11 @@ class SuperheroInfo {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is SuperheroInfo &&
-              runtimeType == other.runtimeType &&
-              name == other.name &&
-              realName == other.realName &&
-              imageUrl == other.imageUrl;
+      other is SuperheroInfo &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          realName == other.realName &&
+          imageUrl == other.imageUrl;
 
   @override
   int get hashCode => name.hashCode ^ realName.hashCode ^ imageUrl.hashCode;
@@ -168,10 +168,10 @@ class MainPageStateInfo {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is MainPageStateInfo &&
-              runtimeType == other.runtimeType &&
-              searchText == other.searchText &&
-              haveFavorites == other.haveFavorites;
+      other is MainPageStateInfo &&
+          runtimeType == other.runtimeType &&
+          searchText == other.searchText &&
+          haveFavorites == other.haveFavorites;
 
   @override
   int get hashCode => searchText.hashCode ^ haveFavorites.hashCode;
