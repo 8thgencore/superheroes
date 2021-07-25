@@ -76,15 +76,14 @@ class MainBloc {
   }
 
   void removeFavorite() {
-    var v =  List<SuperheroInfo>.from(favoriteSuperheroesSubject.value);
-    if (v.isEmpty) {
-      v.addAll(SuperheroInfo.mocked);
-      favoriteSuperheroesSubject.add(v);
-      return;
+    // var currentFavorites =  List<SuperheroInfo>.from(favoriteSuperheroesSubject.value);
+    final List<SuperheroInfo> currentFavorites = favoriteSuperheroesSubject.value;
+    if (currentFavorites.isEmpty) {
+      currentFavorites.addAll(SuperheroInfo.mocked);
+      favoriteSuperheroesSubject.add(currentFavorites);
     }
-    v.removeLast();
-    favoriteSuperheroesSubject.add(v);
-    return;
+    currentFavorites.removeLast();
+    favoriteSuperheroesSubject.add(currentFavorites);
   }
 
   void dispose() {
