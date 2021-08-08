@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:http/http.dart' as http;
+import 'package:superheroes/exception/api_exception.dart';
 import 'package:superheroes/model/superhero.dart';
 
 class MainBloc {
@@ -56,24 +57,27 @@ class MainBloc {
       final List<dynamic> results = decoded['results'];
       final List<Superhero> superheroes =
           results.map((rawSuperhero) => Superhero.fromJson(rawSuperhero)).toList();
-      final List<SuperheroInfo> found = superheroes.map((superhero) {
-        return SuperheroInfo(
-          name: superhero.name,
-          realName: superhero.biography.fullName,
-          imageUrl: superhero.image.url,
-        );
-      }).toList();
+      final List<SuperheroInfo> found = superheroes
+          .map((superhero) => SuperheroInfo(
+                name: superhero.name,
+                realName: superhero.biography.fullName,
+                imageUrl: superhero.image.url,
+              ))
+          .toList();
       return found;
-    } else if (decoded['response'] == 'error') {
+    } if (decoded['response'] == 'error') {
       if (decoded['error'] == 'character with given name not found') {
         return [];
       }
+      throw ApiException.fromCode(
+        code: response.statusCode,
+        message: decoded['error'],
+      );
     }
-    throw Exception("Unknown error happened");
-
-    // return SuperheroInfo.mocked
-    //     .where((i) => i.name.toLowerCase().contains(text.toLowerCase()))
-    //     .toList();
+    throw ApiException.fromCode(
+      code: response.statusCode,
+      message: decoded['error'],
+    );
   }
 
   Stream<MainPageState> observeMainPageState() => stateSubject;
@@ -113,6 +117,10 @@ class MainBloc {
     v.removeLast();
     favoriteSuperheroesSubject.add(v);
     return;
+  }
+
+  void retry() {
+    searchForSuperheroes(currentTextSubject.valueOrNull ?? '');
   }
 
   void dispose() {

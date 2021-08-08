@@ -90,6 +90,7 @@ class _SearchWidgetState extends State<SearchWidget> {
         stream: bloc.currentTextSubject,
         builder: (context, snapshot) {
           return TextField(
+            // focusNode: FocusScope.of(context),
             controller: controller,
             cursorColor: Colors.white,
             textInputAction: TextInputAction.search,
@@ -170,7 +171,18 @@ class MainPageStateWidget extends StatelessWidget {
           case MainPageState.noFavorites:
             return Stack(
               children: [
-                NoFavoritesWidget(),
+                InfoWithButton(
+                  title: "No favorites yet",
+                  subtitle: "Search and add",
+                  buttonText: "Search",
+                  assetImage: SuperheroesImages.ironman,
+                  imageHeight: 119,
+                  imageWidth: 108,
+                  imageTopPadding: 9,
+                  onTap: () {
+                    FocusScope.of(context).previousFocus();
+                  },
+                ),
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: ActionButton(
@@ -181,9 +193,29 @@ class MainPageStateWidget extends StatelessWidget {
               ],
             );
           case MainPageState.nothingFound:
-            return NothingFoundWidget();
+            return InfoWithButton(
+              title: "Nothing found",
+              subtitle: "Search for something else",
+              buttonText: "Search",
+              assetImage: SuperheroesImages.hulk,
+              imageHeight: 112,
+              imageWidth: 84,
+              imageTopPadding: 16,
+              onTap: () {
+                FocusScope.of(context).previousFocus();
+              },
+            );
           case MainPageState.loadingError:
-            return LoadingErrorWidget();
+            return InfoWithButton(
+              title: "Error happened",
+              subtitle: "Please, try again",
+              buttonText: "Retry",
+              assetImage: SuperheroesImages.superman,
+              imageHeight: 106,
+              imageWidth: 126,
+              imageTopPadding: 22,
+              onTap: bloc.retry,
+            );
           default:
             return Center(
               child: Text(
@@ -193,63 +225,6 @@ class MainPageStateWidget extends StatelessWidget {
             );
         }
       },
-    );
-  }
-}
-
-class LoadingErrorWidget extends StatelessWidget {
-  const LoadingErrorWidget({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return InfoWithButton(
-      title: "Error happened",
-      subtitle: "Please, try again",
-      buttonText: "Retry",
-      assetImage: SuperheroesImages.superman,
-      imageHeight: 106,
-      imageWidth: 126,
-      imageTopPadding: 22,
-    );
-  }
-}
-
-class NoFavoritesWidget extends StatelessWidget {
-  const NoFavoritesWidget({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return InfoWithButton(
-      title: "No favorites yet",
-      subtitle: "Search and add",
-      buttonText: "Search",
-      assetImage: SuperheroesImages.ironman,
-      imageHeight: 119,
-      imageWidth: 108,
-      imageTopPadding: 9,
-    );
-  }
-}
-
-class NothingFoundWidget extends StatelessWidget {
-  const NothingFoundWidget({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return InfoWithButton(
-      title: "Nothing found",
-      subtitle: "Search for something else",
-      buttonText: "Search",
-      assetImage: SuperheroesImages.hulk,
-      imageHeight: 112,
-      imageWidth: 84,
-      imageTopPadding: 16,
     );
   }
 }
