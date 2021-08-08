@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'serverimage.dart';
+part of 'server_image.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
