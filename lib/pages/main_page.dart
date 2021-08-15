@@ -22,11 +22,13 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   late MainBloc bloc;
+  late FocusNode focus;
 
   @override
   void initState() {
     super.initState();
     bloc = MainBloc(client: widget.client);
+    focus = FocusNode();
   }
 
   @override
@@ -36,7 +38,10 @@ class _MainPageState extends State<MainPage> {
       child: Scaffold(
         backgroundColor: SuperheroesColors.background,
         body: SafeArea(
-          child: MainPageContent(),
+          child: MainIW(
+            focus: focus,
+            child: MainPageContent(),
+          ),
         ),
       ),
     );
@@ -45,8 +50,18 @@ class _MainPageState extends State<MainPage> {
   @override
   void dispose() {
     bloc.dispose();
+    focus.dispose();
     super.dispose();
   }
+}
+
+class MainIW extends InheritedWidget {
+  final FocusNode focus;
+
+  MainIW({required this.focus, required Widget child}) : super(child: child);
+
+  @override
+  bool updateShouldNotify(covariant InheritedWidget oldWidget) => false;
 }
 
 class MainPageContent extends StatelessWidget {
@@ -90,7 +105,7 @@ class _SearchWidgetState extends State<SearchWidget> {
         stream: bloc.currentTextSubject,
         builder: (context, snapshot) {
           return TextField(
-            // focusNode: FocusScope.of(context),
+            focusNode: context.dependOnInheritedWidgetOfExactType<MainIW>()!.focus,
             controller: controller,
             cursorColor: Colors.white,
             textInputAction: TextInputAction.search,
@@ -180,7 +195,7 @@ class MainPageStateWidget extends StatelessWidget {
                   imageWidth: 108,
                   imageTopPadding: 9,
                   onTap: () {
-                    FocusScope.of(context).previousFocus();
+                    context.dependOnInheritedWidgetOfExactType<MainIW>()!.focus.requestFocus();
                   },
                 ),
                 Align(
@@ -202,7 +217,7 @@ class MainPageStateWidget extends StatelessWidget {
               imageWidth: 84,
               imageTopPadding: 16,
               onTap: () {
-                FocusScope.of(context).previousFocus();
+                context.dependOnInheritedWidgetOfExactType<MainIW>()!.focus.requestFocus();
               },
             );
           case MainPageState.loadingError:
@@ -214,7 +229,7 @@ class MainPageStateWidget extends StatelessWidget {
               imageHeight: 106,
               imageWidth: 126,
               imageTopPadding: 22,
-              onTap: bloc.retry,
+              onTap: () => bloc.retry(),
             );
           default:
             return Center(
