@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:http/http.dart' as http;
@@ -52,6 +53,13 @@ class MainBloc {
     final token = dotenv.env["SUPERHERO_TOKEN"];
     final response = await (client ??= http.Client())
         .get(Uri.parse("https://superheroapi.com/api/$token/search/$text"));
+    if (response.statusCode >= 500 && response.statusCode <= 599) {
+      throw ApiException("Server error happened");
+    }
+    if (response.statusCode >= 400 && response.statusCode <= 499) {
+      throw ApiException("Client error happened");
+    }
+
     final decoded = json.decode(response.body);
     if (decoded["response"] == "success") {
       final List<dynamic> results = decoded['results'];
@@ -65,35 +73,33 @@ class MainBloc {
               ))
           .toList();
       return found;
-    } if (decoded['response'] == 'error') {
+    } else if (decoded['response'] == 'error') {
       if (decoded['error'] == 'character with given name not found') {
         return [];
       }
-      throw ApiException.fromCode(
-        code: response.statusCode,
-        message: decoded['error'],
-      );
+      throw ApiException("Client error happened");
     }
-    throw ApiException.fromCode(
-      code: response.statusCode,
-      message: decoded['error'],
-    );
+    throw ApiException("Client error happened");
   }
 
   Stream<MainPageState> observeMainPageState() => stateSubject;
 
   void searchForSuperheroes(final String text) {
     stateSubject.add(MainPageState.loading);
-    searchSubscription = search(text).asStream().listen((searchResults) {
-      if (searchResults.isEmpty) {
-        stateSubject.add(MainPageState.nothingFound);
-      } else {
-        searchedSuperheroesSubject.add(searchResults);
-        stateSubject.add(MainPageState.searchResults);
-      }
-    }, onError: (error, stackTrace) {
-      stateSubject.add(MainPageState.loadingError);
-    });
+    searchSubscription = search(text).asStream().listen(
+      (searchResults) {
+        if (searchResults.isEmpty) {
+          stateSubject.add(MainPageState.nothingFound);
+        } else {
+          searchedSuperheroesSubject.add(searchResults);
+          stateSubject.add(MainPageState.searchResults);
+        }
+      },
+      onError: (error, stackTrace) {
+        print(error);
+        stateSubject.add(MainPageState.loadingError);
+      },
+    );
   }
 
   void nextState() {

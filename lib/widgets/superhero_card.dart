@@ -45,15 +45,14 @@ class SuperheroCard extends StatelessWidget {
                     width: 20,
                   ),
                 ),
-                progressIndicatorBuilder: (context, url, progress) => Center(
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: SuperheroesColors.blue,
-                      value: progress.progress,
-                    ),
+                progressIndicatorBuilder: (context, url, progress) => Container(
+                  alignment: Alignment.center,
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: SuperheroesColors.blue,
+                    value: progress.progress,
                   ),
                 ),
               ),
