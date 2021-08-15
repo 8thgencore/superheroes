@@ -71,7 +71,7 @@ class InfoWithButton extends StatelessWidget {
           ),
           SizedBox(height: 30),
           ActionButton(
-            text: buttonText.toUpperCase(),
+            text: buttonText,
             onTap: onTap,
           ),
         ],
