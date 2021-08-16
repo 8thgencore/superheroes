@@ -126,7 +126,8 @@ class MainBloc {
   }
 
   void retry() {
-    searchForSuperheroes(currentTextSubject.valueOrNull ?? '');
+    // searchForSuperheroes(currentTextSubject.valueOrNull ?? '');
+    searchForSuperheroes(currentTextSubject.value);
   }
 
   void dispose() {

@@ -38,10 +38,11 @@ class _MainPageState extends State<MainPage> {
       child: Scaffold(
         backgroundColor: SuperheroesColors.background,
         body: SafeArea(
-          child: MainIW(
-            focus: focus,
-            child: MainPageContent(),
-          ),
+          child: MainPageContent(),
+          // child: MainIW(
+          //   focus: focus,
+          //   child: MainPageContent(),
+          // ),
         ),
       ),
     );
@@ -55,24 +56,28 @@ class _MainPageState extends State<MainPage> {
   }
 }
 
-class MainIW extends InheritedWidget {
-  final FocusNode focus;
-
-  MainIW({required this.focus, required Widget child}) : super(child: child);
-
-  @override
-  bool updateShouldNotify(covariant InheritedWidget oldWidget) => false;
-}
+// class MainIW extends InheritedWidget {
+//   final FocusNode focus;
+//
+//   MainIW({required this.focus, required Widget child}) : super(child: child);
+//
+//   @override
+//   bool updateShouldNotify(covariant InheritedWidget oldWidget) => false;
+// }
 
 class MainPageContent extends StatelessWidget {
+  final FocusNode searchFieldFocusNode = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        MainPageStateWidget(),
+        MainPageStateWidget(searchFieldFocusNode: searchFieldFocusNode),
         Padding(
           padding: const EdgeInsets.only(top: 12, left: 16, right: 16),
-          child: SearchWidget(),
+          child: SearchWidget(
+            searchFieldFocusNode: searchFieldFocusNode,
+          ),
         ),
       ],
     );
@@ -80,6 +85,10 @@ class MainPageContent extends StatelessWidget {
 }
 
 class SearchWidget extends StatefulWidget {
+  final FocusNode searchFieldFocusNode;
+
+  const SearchWidget({Key? key, required this.searchFieldFocusNode}) : super(key: key);
+
   @override
   _SearchWidgetState createState() => _SearchWidgetState();
 }
@@ -105,7 +114,8 @@ class _SearchWidgetState extends State<SearchWidget> {
         stream: bloc.currentTextSubject,
         builder: (context, snapshot) {
           return TextField(
-            focusNode: context.dependOnInheritedWidgetOfExactType<MainIW>()!.focus,
+            // focusNode: context.dependOnInheritedWidgetOfExactType<MainIW>()!.focus,
+            focusNode: widget.searchFieldFocusNode,
             controller: controller,
             cursorColor: Colors.white,
             textInputAction: TextInputAction.search,
@@ -147,6 +157,13 @@ class _SearchWidgetState extends State<SearchWidget> {
 }
 
 class MainPageStateWidget extends StatelessWidget {
+  final FocusNode searchFieldFocusNode;
+
+  const MainPageStateWidget({
+    Key? key,
+    required this.searchFieldFocusNode,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final MainBloc bloc = Provider.of<MainBloc>(context, listen: false);
@@ -194,9 +211,10 @@ class MainPageStateWidget extends StatelessWidget {
                   imageHeight: 119,
                   imageWidth: 108,
                   imageTopPadding: 9,
-                  onTap: () {
-                    context.dependOnInheritedWidgetOfExactType<MainIW>()!.focus.requestFocus();
-                  },
+                  onTap: ()  => searchFieldFocusNode.requestFocus(),
+                  //{
+                  // context.dependOnInheritedWidgetOfExactType<MainIW>()!.focus.requestFocus();
+                  // },
                 ),
                 Align(
                   alignment: Alignment.bottomCenter,
@@ -216,9 +234,10 @@ class MainPageStateWidget extends StatelessWidget {
               imageHeight: 112,
               imageWidth: 84,
               imageTopPadding: 16,
-              onTap: () {
-                context.dependOnInheritedWidgetOfExactType<MainIW>()!.focus.requestFocus();
-              },
+              onTap: ()  => searchFieldFocusNode.requestFocus(),
+              //{
+              // context.dependOnInheritedWidgetOfExactType<MainIW>()!.focus.requestFocus();
+              // },
             );
           case MainPageState.loadingError:
             return InfoWithButton(
