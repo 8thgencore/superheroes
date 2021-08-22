@@ -5,7 +5,7 @@ import 'package:superheroes/model/server_image.dart';
 
 part 'superhero.g.dart';
 
-@JsonSerializable(fieldRename: FieldRename.kebab, explicitToJson: true)
+@JsonSerializable()
 class Superhero {
   final String id;
   final String name;
@@ -13,7 +13,13 @@ class Superhero {
   final ServerImage image;
   final Powerstats powerstats;
 
-  Superhero(this.id, this.name, this.biography, this.image, this.powerstats);
+  Superhero({
+    required this.id,
+    required this.name,
+    required this.biography,
+    required this.image,
+    required this.powerstats,
+  });
 
   factory Superhero.fromJson(final Map<String, dynamic> json) => _$SuperheroFromJson(json);
 

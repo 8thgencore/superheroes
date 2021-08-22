@@ -33,5 +33,6 @@ flutter:
   assets:
     - google_fonts/
     - assets/images/
+    - assets/icons/
     - .env
 

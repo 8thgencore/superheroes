@@ -59,7 +59,6 @@ class MainBloc {
     if (response.statusCode >= 400 && response.statusCode <= 499) {
       throw ApiException("Client error happened");
     }
-
     final decoded = json.decode(response.body);
     if (decoded["response"] == "success") {
       final List<dynamic> results = decoded['results'];
@@ -67,6 +66,7 @@ class MainBloc {
           results.map((rawSuperhero) => Superhero.fromJson(rawSuperhero)).toList();
       final List<SuperheroInfo> found = superheroes
           .map((superhero) => SuperheroInfo(
+                id: superhero.id,
                 name: superhero.name,
                 realName: superhero.biography.fullName,
                 imageUrl: superhero.image.url,
@@ -79,7 +79,7 @@ class MainBloc {
       }
       throw ApiException("Client error happened");
     }
-    throw ApiException("Client error happened");
+    throw Exception("Unknown error happened");
   }
 
   Stream<MainPageState> observeMainPageState() => stateSubject;
@@ -90,13 +90,14 @@ class MainBloc {
       (searchResults) {
         if (searchResults.isEmpty) {
           stateSubject.add(MainPageState.nothingFound);
+          return;
         } else {
           searchedSuperheroesSubject.add(searchResults);
           stateSubject.add(MainPageState.searchResults);
         }
       },
       onError: (error, stackTrace) {
-        print(error);
+        print("$error");
         stateSubject.add(MainPageState.loadingError);
       },
     );
@@ -153,11 +154,13 @@ enum MainPageState {
 }
 
 class SuperheroInfo {
+  final String id;
   final String name;
   final String realName;
   final String imageUrl;
 
   const SuperheroInfo({
+    required this.id,
     required this.name,
     required this.realName,
     required this.imageUrl,
@@ -165,7 +168,7 @@ class SuperheroInfo {
 
   @override
   String toString() {
-    return 'SuperheroInfo{name: $name, realName: $realName, imageUrl: $imageUrl}';
+    return 'SuperheroInfo{id: $id, name: $name, realName: $realName, imageUrl: $imageUrl}';
   }
 
   @override
@@ -173,25 +176,29 @@ class SuperheroInfo {
       identical(this, other) ||
       other is SuperheroInfo &&
           runtimeType == other.runtimeType &&
+          id == other.id &&
           name == other.name &&
           realName == other.realName &&
           imageUrl == other.imageUrl;
 
   @override
-  int get hashCode => name.hashCode ^ realName.hashCode ^ imageUrl.hashCode;
+  int get hashCode => id.hashCode ^ name.hashCode ^ realName.hashCode ^ imageUrl.hashCode;
 
   static const mocked = [
     SuperheroInfo(
+      id: "70",
       name: "Batman",
       realName: 'Bruce Wayne',
       imageUrl: 'https://www.superherodb.com/pictures2/portraits/10/100/639.jpg',
     ),
     SuperheroInfo(
+      id: "732",
       name: "Ironman",
       realName: 'Tony Stark',
       imageUrl: 'https://www.superherodb.com/pictures2/portraits/10/100/85.jpg',
     ),
     SuperheroInfo(
+      id: "687",
       name: "Venom",
       realName: 'Eddie Brock',
       imageUrl: 'https://www.superherodb.com/pictures2/portraits/10/100/22.jpg',
