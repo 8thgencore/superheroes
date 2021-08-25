@@ -39,10 +39,6 @@ class _MainPageState extends State<MainPage> {
         backgroundColor: SuperheroesColors.background,
         body: SafeArea(
           child: MainPageContent(),
-          // child: MainIW(
-          //   focus: focus,
-          //   child: MainPageContent(),
-          // ),
         ),
       ),
     );
@@ -55,15 +51,6 @@ class _MainPageState extends State<MainPage> {
     super.dispose();
   }
 }
-
-// class MainIW extends InheritedWidget {
-//   final FocusNode focus;
-//
-//   MainIW({required this.focus, required Widget child}) : super(child: child);
-//
-//   @override
-//   bool updateShouldNotify(covariant InheritedWidget oldWidget) => false;
-// }
 
 class MainPageContent extends StatelessWidget {
   final FocusNode searchFieldFocusNode = FocusNode();
@@ -95,8 +82,6 @@ class SearchWidget extends StatefulWidget {
 
 class _SearchWidgetState extends State<SearchWidget> {
   final TextEditingController controller = TextEditingController();
-
-  // можно   final controller = TextEditingController();
 
   @override
   void initState() {
@@ -180,20 +165,9 @@ class MainPageStateWidget extends StatelessWidget {
           case MainPageState.minSymbols:
             return MinSymbolsWidget();
           case MainPageState.favorites:
-            return Stack(
-              children: [
-                SuperheroesList(
-                  title: "Your favorites",
-                  stream: bloc.observeFavoriteSuperheroes(),
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: ActionButton(
-                    text: "Remove".toUpperCase(),
-                    onTap: () => bloc.removeFavorite(),
-                  ),
-                ),
-              ],
+            return SuperheroesList(
+              title: "Your favorites",
+              stream: bloc.observeFavoriteSuperheroes(),
             );
           case MainPageState.searchResults:
             return SuperheroesList(
@@ -201,29 +175,15 @@ class MainPageStateWidget extends StatelessWidget {
               stream: bloc.observeSearchedSuperheroes(),
             );
           case MainPageState.noFavorites:
-            return Stack(
-              children: [
-                InfoWithButton(
-                  title: "No favorites yet",
-                  subtitle: "Search and add",
-                  buttonText: "Search",
-                  assetImage: SuperheroesImages.ironman,
-                  imageHeight: 119,
-                  imageWidth: 108,
-                  imageTopPadding: 9,
-                  onTap: ()  => searchFieldFocusNode.requestFocus(),
-                  //{
-                  // context.dependOnInheritedWidgetOfExactType<MainIW>()!.focus.requestFocus();
-                  // },
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: ActionButton(
-                    text: "Remove".toUpperCase(),
-                    onTap: () => bloc.removeFavorite(),
-                  ),
-                ),
-              ],
+            return InfoWithButton(
+              title: "No favorites yet",
+              subtitle: "Search and add",
+              buttonText: "Search",
+              assetImage: SuperheroesImages.ironman,
+              imageHeight: 119,
+              imageWidth: 108,
+              imageTopPadding: 9,
+              onTap: () => searchFieldFocusNode.requestFocus(),
             );
           case MainPageState.nothingFound:
             return InfoWithButton(
@@ -234,10 +194,7 @@ class MainPageStateWidget extends StatelessWidget {
               imageHeight: 112,
               imageWidth: 84,
               imageTopPadding: 16,
-              onTap: ()  => searchFieldFocusNode.requestFocus(),
-              //{
-              // context.dependOnInheritedWidgetOfExactType<MainIW>()!.focus.requestFocus();
-              // },
+              onTap: () => searchFieldFocusNode.requestFocus(),
             );
           case MainPageState.loadingError:
             return InfoWithButton(
@@ -287,38 +244,67 @@ class SuperheroesList extends StatelessWidget {
           itemCount: superheroes.length + 1,
           itemBuilder: (BuildContext context, int index) {
             if (index == 0) {
-              return Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16, top: 90, bottom: 12),
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              );
+              return ListTitleWidget(title: title);
             }
+
             final SuperheroInfo item = superheroes[index - 1];
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: SuperheroCard(
-                superheroInfo: item,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => SuperheroPage(id: item.id),
-                    ),
-                  );
-                },
-              ),
-            );
+            return ListTile(superhero: item);
           },
           separatorBuilder: (BuildContext context, int index) {
             return const SizedBox(height: 8);
           },
         );
       },
+    );
+  }
+}
+
+class ListTile extends StatelessWidget {
+  final SuperheroInfo superhero;
+
+  const ListTile({
+    Key? key,
+    required this.superhero,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SuperheroCard(
+        superheroInfo: superhero,
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => SuperheroPage(id: superhero.id),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class ListTitleWidget extends StatelessWidget {
+  const ListTitleWidget({
+    Key? key,
+    required this.title,
+  }) : super(key: key);
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 90, bottom: 12),
+      child: Text(
+        title,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 24,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
     );
   }
 }

@@ -6,14 +6,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:http/http.dart' as http;
 import 'package:superheroes/exception/api_exception.dart';
+import 'package:superheroes/favorite_superheroes_storage.dart';
 import 'package:superheroes/model/superhero.dart';
 
 class MainBloc {
   static const minSymbols = 3;
 
   final BehaviorSubject<MainPageState> stateSubject = BehaviorSubject();
-  final favoriteSuperheroesSubject =
-      BehaviorSubject<List<SuperheroInfo>>.seeded(SuperheroInfo.mocked);
   final searchedSuperheroesSubject = BehaviorSubject<List<SuperheroInfo>>();
   final currentTextSubject = BehaviorSubject<String>.seeded("");
 
@@ -25,9 +24,9 @@ class MainBloc {
   MainBloc({this.client}) {
     stateSubject.add(MainPageState.noFavorites);
 
-    textSubscription = Rx.combineLatest2<String, List<SuperheroInfo>, MainPageStateInfo>(
+    textSubscription = Rx.combineLatest2<String, List<Superhero>, MainPageStateInfo>(
       currentTextSubject.distinct().debounceTime(Duration(milliseconds: 500)),
-      favoriteSuperheroesSubject,
+      FavoriteSuperheroesStorage.getInstance().observeFavoriteSuperheroes(),
       (searchedText, favorites) => MainPageStateInfo(searchedText, favorites.isNotEmpty),
     ).listen((value) {
       searchSubscription?.cancel();
@@ -45,7 +44,11 @@ class MainBloc {
     });
   }
 
-  Stream<List<SuperheroInfo>> observeFavoriteSuperheroes() => favoriteSuperheroesSubject;
+  Stream<List<SuperheroInfo>> observeFavoriteSuperheroes() {
+    return FavoriteSuperheroesStorage.getInstance().observeFavoriteSuperheroes().map((superheroes) {
+      return superheroes.map((superhero) => SuperheroInfo.fromSuperhero(superhero)).toList();
+    });
+  }
 
   Stream<List<SuperheroInfo>> observeSearchedSuperheroes() => searchedSuperheroesSubject;
 
@@ -64,14 +67,8 @@ class MainBloc {
       final List<dynamic> results = decoded['results'];
       final List<Superhero> superheroes =
           results.map((rawSuperhero) => Superhero.fromJson(rawSuperhero)).toList();
-      final List<SuperheroInfo> found = superheroes
-          .map((superhero) => SuperheroInfo(
-                id: superhero.id,
-                name: superhero.name,
-                realName: superhero.biography.fullName,
-                imageUrl: superhero.image.url,
-              ))
-          .toList();
+      final List<SuperheroInfo> found =
+          superheroes.map((superhero) => SuperheroInfo.fromSuperhero(superhero)).toList();
       return found;
     } else if (decoded['response'] == 'error') {
       if (decoded['error'] == 'character with given name not found') {
@@ -114,18 +111,6 @@ class MainBloc {
     currentTextSubject.add(text ?? "");
   }
 
-  void removeFavorite() {
-    var v = List<SuperheroInfo>.from(favoriteSuperheroesSubject.value);
-    if (v.isEmpty) {
-      v.addAll(SuperheroInfo.mocked);
-      favoriteSuperheroesSubject.add(v);
-      return;
-    }
-    v.removeLast();
-    favoriteSuperheroesSubject.add(v);
-    return;
-  }
-
   void retry() {
     // searchForSuperheroes(currentTextSubject.valueOrNull ?? '');
     searchForSuperheroes(currentTextSubject.value);
@@ -133,11 +118,11 @@ class MainBloc {
 
   void dispose() {
     stateSubject.close();
-    favoriteSuperheroesSubject.close();
     searchedSuperheroesSubject.close();
     currentTextSubject.close();
 
     textSubscription?.cancel();
+    searchSubscription?.cancel();
 
     client?.close();
   }
@@ -165,6 +150,15 @@ class SuperheroInfo {
     required this.realName,
     required this.imageUrl,
   });
+
+  factory SuperheroInfo.fromSuperhero(final Superhero superhero) {
+    return SuperheroInfo(
+      id: superhero.id,
+      name: superhero.name,
+      realName: superhero.biography.fullName,
+      imageUrl: superhero.image.url,
+    );
+  }
 
   @override
   String toString() {
