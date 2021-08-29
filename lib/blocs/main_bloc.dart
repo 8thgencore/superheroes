@@ -7,6 +7,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:http/http.dart' as http;
 import 'package:superheroes/exception/api_exception.dart';
 import 'package:superheroes/favorite_superheroes_storage.dart';
+import 'package:superheroes/model/alignment_info.dart';
 import 'package:superheroes/model/superhero.dart';
 
 class MainBloc {
@@ -18,6 +19,7 @@ class MainBloc {
 
   StreamSubscription? textSubscription;
   StreamSubscription? searchSubscription;
+  StreamSubscription? removeFromFavoriteSubscription;
 
   http.Client? client;
 
@@ -111,6 +113,16 @@ class MainBloc {
     currentTextSubject.add(text ?? "");
   }
 
+  void removeFromFavorites(final String id) {
+    removeFromFavoriteSubscription?.cancel();
+    removeFromFavoriteSubscription = FavoriteSuperheroesStorage.getInstance().removeFromFavorites(id).asStream().listen(
+          (event) {
+        print("Removed from favorites: $event");
+      },
+      onError: (error, stackTrace) => print("Error happened in addToFavorite: $error, $stackTrace"),
+    );
+  }
+
   void retry() {
     // searchForSuperheroes(currentTextSubject.valueOrNull ?? '');
     searchForSuperheroes(currentTextSubject.value);
@@ -123,6 +135,7 @@ class MainBloc {
 
     textSubscription?.cancel();
     searchSubscription?.cancel();
+    removeFromFavoriteSubscription?.cancel();
 
     client?.close();
   }
@@ -143,12 +156,14 @@ class SuperheroInfo {
   final String name;
   final String realName;
   final String imageUrl;
+  final AlignmentInfo? alignmentInfo;
 
   const SuperheroInfo({
     required this.id,
     required this.name,
     required this.realName,
     required this.imageUrl,
+    this.alignmentInfo,
   });
 
   factory SuperheroInfo.fromSuperhero(final Superhero superhero) {
@@ -157,6 +172,7 @@ class SuperheroInfo {
       name: superhero.name,
       realName: superhero.biography.fullName,
       imageUrl: superhero.image.url,
+      alignmentInfo: superhero.biography.alignmentInfo,
     );
   }
 
@@ -177,27 +193,6 @@ class SuperheroInfo {
 
   @override
   int get hashCode => id.hashCode ^ name.hashCode ^ realName.hashCode ^ imageUrl.hashCode;
-
-  static const mocked = [
-    SuperheroInfo(
-      id: "70",
-      name: "Batman",
-      realName: 'Bruce Wayne',
-      imageUrl: 'https://www.superherodb.com/pictures2/portraits/10/100/639.jpg',
-    ),
-    SuperheroInfo(
-      id: "732",
-      name: "Ironman",
-      realName: 'Tony Stark',
-      imageUrl: 'https://www.superherodb.com/pictures2/portraits/10/100/85.jpg',
-    ),
-    SuperheroInfo(
-      id: "687",
-      name: "Venom",
-      realName: 'Eddie Brock',
-      imageUrl: 'https://www.superherodb.com/pictures2/portraits/10/100/22.jpg',
-    ),
-  ];
 }
 
 class MainPageStateInfo {
