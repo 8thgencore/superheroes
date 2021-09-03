@@ -104,7 +104,7 @@ class SuperheroBloc {
     throw Exception("Unknown error happened");
   }
 
-  Stream<Superhero> observeSuperhero() => superheroSubject;
+  Stream<Superhero> observeSuperhero() => superheroSubject.distinct();
 
   void dispose() {
     client?.close();

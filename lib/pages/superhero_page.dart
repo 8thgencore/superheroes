@@ -62,6 +62,7 @@ class SuperheroContentPage extends StatelessWidget {
             return const SizedBox.shrink();
           }
           final superhero = snapshot.data!;
+          print("Got new superhero $superhero");
           return CustomScrollView(
             slivers: [
               SuperheroAppBar(superhero: superhero),
