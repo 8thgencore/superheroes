@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 import 'package:superheroes/resources/superheroes_icons.dart';
 import 'package:superheroes/resources/superheroes_images.dart';
 import 'package:superheroes/widgets/alignment_widget.dart';
+import 'package:superheroes/widgets/info_with_button.dart';
 
 class SuperheroPage extends StatefulWidget {
   final http.Client? client;
@@ -55,31 +56,112 @@ class SuperheroContentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = Provider.of<SuperheroBloc>(context, listen: false);
+    return StreamBuilder<SuperheroPageState>(
+      stream: bloc.observeSuperheroPageState(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const SizedBox.shrink();
+        }
+        final state = snapshot.data!;
+        switch (state) {
+          case SuperheroPageState.loading:
+            return SuperheroLoadingWidget();
+          case SuperheroPageState.loaded:
+            return SuperheroLoadedWidget();
+          case SuperheroPageState.error:
+          default:
+            return SuperheroErrorWidget();
+        }
+      },
+    );
+  }
+}
+
+class SuperheroLoadedWidget extends StatelessWidget {
+  const SuperheroLoadedWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = Provider.of<SuperheroBloc>(context, listen: false);
     return StreamBuilder<Superhero>(
-        stream: bloc.observeSuperhero(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData || snapshot.data == null) {
-            return const SizedBox.shrink();
-          }
-          final superhero = snapshot.data!;
-          print("Got new superhero $superhero");
-          return CustomScrollView(
-            slivers: [
-              SuperheroAppBar(superhero: superhero),
-              SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 30),
-                    if (superhero.powerstats.isNotNull())
-                      PowerstatsWidget(powerstats: superhero.powerstats),
-                    BiographyWidget(biography: superhero.biography),
-                    const SizedBox(height: 30),
-                  ],
-                ),
+      stream: bloc.observeSuperhero(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const SizedBox.shrink();
+        }
+        final superhero = snapshot.data!;
+        return CustomScrollView(
+          slivers: [
+            SuperheroAppBar(superhero: superhero),
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  const SizedBox(height: 30),
+                  if (superhero.powerstats.isNotNull())
+                    PowerstatsWidget(powerstats: superhero.powerstats),
+                  BiographyWidget(biography: superhero.biography),
+                  const SizedBox(height: 30),
+                ],
               ),
-            ],
-          );
-        });
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class SuperheroLoadingWidget extends StatelessWidget {
+  const SuperheroLoadingWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(backgroundColor: SuperheroesColors.background),
+        SliverToBoxAdapter(
+          child: Container(
+            margin: const EdgeInsets.only(top: 60),
+            alignment: Alignment.topCenter,
+            height: 44,
+            width: 44,
+            child: CircularProgressIndicator(
+              color: SuperheroesColors.blue,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class SuperheroErrorWidget extends StatelessWidget {
+  const SuperheroErrorWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = Provider.of<SuperheroBloc>(context, listen: false);
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(backgroundColor: SuperheroesColors.background),
+        SliverToBoxAdapter(
+          child: Container(
+            margin: const EdgeInsets.only(top: 60),
+            alignment: Alignment.topCenter,
+            child: InfoWithButton(
+              title: "Error happened",
+              subtitle: "Please, try again",
+              buttonText: "Retry",
+              assetImage: SuperheroesImages.superman,
+              imageHeight: 106,
+              imageWidth: 126,
+              imageTopPadding: 22,
+              onTap: () => bloc.retry(),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -356,8 +438,8 @@ class BiographyWidget extends StatelessWidget {
                 child: AlignmentWidget(
                   alignmentInfo: biography.alignmentInfo!,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    bottomRight: Radius.circular(16),
+                    topLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
                   ),
                 ),
               ),
