@@ -5,7 +5,6 @@ import 'package:superheroes/blocs/main_bloc.dart';
 import 'package:superheroes/pages/superhero_page.dart';
 import 'package:superheroes/resources/superheroes_colors.dart';
 import 'package:superheroes/resources/superheroes_images.dart';
-import 'package:superheroes/widgets/action_button.dart';
 import 'package:superheroes/widgets/info_with_button.dart';
 import 'package:superheroes/widgets/superhero_card.dart';
 
@@ -117,7 +116,7 @@ class _SearchWidgetState extends State<SearchWidget> {
               filled: true,
               fillColor: SuperheroesColors.indigo75,
               prefixIcon: Icon(Icons.search, color: Colors.white54, size: 24),
-              suffix: GestureDetector(
+              suffixIcon: GestureDetector(
                 onTap: () => controller.clear(),
                 child: Icon(Icons.clear, color: Colors.white),
               ),

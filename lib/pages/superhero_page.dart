@@ -176,13 +176,17 @@ class SuperheroAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
+      primary: true,
       stretch: true,
       pinned: true,
       floating: true,
+      brightness: Brightness.dark,
       expandedHeight: 348,
-      actions: [FavoriteButton()],
+      actions: [FavoriteButton(),],
       backgroundColor: SuperheroesColors.background,
       flexibleSpace: FlexibleSpaceBar(
+        collapseMode: CollapseMode.parallax,
+        stretchModes: [StretchMode.zoomBackground],
         title: Text(
           superhero.name,
           style: TextStyle(
@@ -196,13 +200,19 @@ class SuperheroAppBar extends StatelessWidget {
           fit: BoxFit.cover,
           imageUrl: superhero.image.url,
           placeholder: (context, url) {
-            return ColoredBox(color: SuperheroesColors.indigo);
+            return ColoredBox(
+              color: SuperheroesColors.indigo,
+            );
           },
           errorWidget: (context, url, error) {
             return Container(
               color: SuperheroesColors.indigo,
               alignment: Alignment.center,
-              child: Image.asset(SuperheroesImages.unknownBig, width: 85, height: 264),
+              child: Image.asset(
+                SuperheroesImages.unknownBig,
+                width: 85,
+                height: 264,
+              ),
             );
           },
         ),
@@ -423,7 +433,7 @@ class BiographyWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  // const SizedBox(height: 8),
                   BiographyField(fieldName: "Full Name", fieldValue: biography.fullName),
                   const SizedBox(height: 20),
                   BiographyField(fieldName: "Aliases", fieldValue: biography.aliases.join(", ")),

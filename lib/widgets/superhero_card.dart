@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:superheroes/blocs/main_bloc.dart';
-import 'package:superheroes/model/alignment_info.dart';
 import 'package:superheroes/resources/superheroes_colors.dart';
 import 'package:superheroes/resources/superheroes_images.dart';
 import 'package:superheroes/widgets/alignment_widget.dart';
@@ -26,7 +25,7 @@ class SuperheroCard extends StatelessWidget {
         height: 70,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(8),
           color: SuperheroesColors.indigo,
         ),
         child: Row(
