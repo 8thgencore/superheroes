@@ -1,33 +1,33 @@
 name: superheroes
-description: A new Flutter project.
+description: Search for superheroes on superheroapi.com
 
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.1+1
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.17.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.3
-  rxdart: ^0.27.1
-  provider: ^5.0.0
-  google_fonts: ^2.1.0
-  http: ^0.13.3
-  flutter_dotenv: ^5.0.0
-  json_annotation: ^4.0.0
-  cached_network_image: ^3.1.0
-  shared_preferences: ^2.0.6
+  cupertino_icons: ^1.0.5
+  rxdart: ^0.27.4
+  provider: ^6.0.3
+  google_fonts: ^3.0.1
+  http: ^0.13.4
+  flutter_dotenv: ^5.0.2
+  json_annotation: ^4.5.0
+  cached_network_image: ^3.2.1
+  shared_preferences: ^2.0.15
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  network_image_mock: ^2.0.1
-  build_runner: ^2.0.6
-  json_serializable: ^4.0.0
-  golden_toolkit: ^0.10.0
+  network_image_mock: ^2.1.1
+  build_runner: ^2.1.11
+  json_serializable: ^6.2.0
+  golden_toolkit: ^0.13.0
 
 
 flutter:
@@ -37,4 +37,3 @@ flutter:
     - assets/images/
     - assets/icons/
     - .env
-

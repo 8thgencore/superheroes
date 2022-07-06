@@ -73,7 +73,8 @@ class MainPageContent extends StatelessWidget {
 class SearchWidget extends StatefulWidget {
   final FocusNode searchFieldFocusNode;
 
-  const SearchWidget({Key? key, required this.searchFieldFocusNode}) : super(key: key);
+  const SearchWidget({Key? key, required this.searchFieldFocusNode})
+      : super(key: key);
 
   @override
   _SearchWidgetState createState() => _SearchWidgetState();
@@ -85,7 +86,7 @@ class _SearchWidgetState extends State<SearchWidget> {
   @override
   void initState() {
     super.initState();
-    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       final MainBloc bloc = Provider.of<MainBloc>(context, listen: false);
       controller.addListener(() => bloc.updateText(controller.text));
     });
@@ -104,7 +105,11 @@ class _SearchWidgetState extends State<SearchWidget> {
             cursorColor: Colors.white,
             textInputAction: TextInputAction.search,
             textCapitalization: TextCapitalization.words,
-            style: TextStyle(fontWeight: FontWeight.w400, fontSize: 20, color: Colors.white),
+            style: TextStyle(
+              fontWeight: FontWeight.w400,
+              fontSize: 20,
+              color: Colors.white,
+            ),
             decoration: InputDecoration(
               hintText: "Search",
               hintStyle: TextStyle(
@@ -126,7 +131,9 @@ class _SearchWidgetState extends State<SearchWidget> {
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
-                  color: snapshot.hasData && snapshot.data != "" ? Colors.white : Colors.white24,
+                  color: snapshot.hasData && snapshot.data != ""
+                      ? Colors.white
+                      : Colors.white24,
                   width: snapshot.hasData && snapshot.data != "" ? 2 : 1,
                 ),
               ),
@@ -292,8 +299,10 @@ class ListTile extends StatelessWidget {
       child: ableToSwipe
           ? Dismissible(
               key: ValueKey(superhero.id),
-              background: BackgroundCard(direction: DismissDirection.startToEnd),
-              secondaryBackground: BackgroundCard(direction: DismissDirection.endToStart),
+              background:
+                  BackgroundCard(direction: DismissDirection.startToEnd),
+              secondaryBackground:
+                  BackgroundCard(direction: DismissDirection.endToStart),
               onDismissed: (_) => bloc.removeFromFavorites(superhero.id),
               child: card)
           : card,
@@ -314,8 +323,9 @@ class BackgroundCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16),
       height: 70,
-      alignment:
-          direction == DismissDirection.startToEnd ? Alignment.centerLeft : Alignment.centerRight,
+      alignment: direction == DismissDirection.startToEnd
+          ? Alignment.centerLeft
+          : Alignment.centerRight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: SuperheroesColors.red,
@@ -327,7 +337,9 @@ class BackgroundCard extends StatelessWidget {
           color: Colors.white,
           fontWeight: FontWeight.w700,
         ),
-        textAlign: direction == DismissDirection.startToEnd ? TextAlign.left : TextAlign.right,
+        textAlign: direction == DismissDirection.startToEnd
+            ? TextAlign.left
+            : TextAlign.right,
       ),
     );
   }
